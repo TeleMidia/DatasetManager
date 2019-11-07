@@ -1,0 +1,170 @@
+<!--
+Copyright (C) 2019  Antonio José Grandson Busson (Telemidia/PUC-Rio)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "base_interface.html" %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-md-12 mb">
+       
+          <div class="tool_header col-md-12 mb">
+                <div class="chk-all">
+                    <div class="btn-group">
+                    <a data-toggle="dropdown" href="#" class="btn mini all">
+                        Show All
+                        <i class="fa fa-angle-down "></i>
+                        </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#"> Not marked</a></li>
+                    </ul>
+                    </div>
+                </div>
+
+                <div class="btn-group hidden-phone">
+                    <a data-toggle="dropdown" href="#" class="btn mini blue">
+                        Action
+                    <i class="fa fa-angle-down "></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                    <li><a href="#"><i class="fa fa-eye"></i> Notify Adm</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#"><i class="fa fa-trash-o"></i> Delete</a></li>
+                    </ul>
+                </div>
+                
+                <span class="sync">
+                <i class=" fa fa-refresh"></i> Synchronizing
+                </span>    
+                <ul class="unstyled inbox-pagination">
+                    <li><span id="curMediaLabel">1-50 of 99</span></li>
+                    <li>
+                    <a class="np-btn" onclick="update_label_current_media(-1)"><i class="fa fa-angle-left  pagination-left"></i></a>
+                    </li>
+                    <li>
+                    <a class="np-btn" onclick="update_label_current_media(1)"><i class="fa fa-angle-right pagination-right"></i></a>
+                    </li>
+                </ul>
+          </div>
+
+          <div class="tool_header col-md-12 mb">
+              <h5>Label <b style="color:red;">■</b></h5>
+              <div class="btn-group hidden-phone">  
+                  <select id="select_tag" onchange="this.selectedIndex" class="form-control">
+                      {% for tag in tags %}
+                          <option onclick="select_label_event({{loop.index}})" >{{tag}}</option>         
+                      {% endfor %} 
+                  </select>
+              </div>
+              <ul class="unstyled inbox-pagination">
+                  <li><span id="scaleLabel">View-scale: 70%</span></li>
+                  <li>
+                  <a class="np-btn" onclick="change_canvas_scale(-10)"><i class="fa fa-search-minus pagination-left"></i></a>
+                  </li>
+                  <li>
+                  <a class="np-btn" onclick="change_canvas_scale(10)"><i class="fa fa-search-plus pagination-right"></i></a>
+                  </li>
+              </ul>  
+          </div>  
+      
+        <canvas class="sismo-canvas" id="sismo_canvas" width="500" height="500" ></canvas>
+    </div>
+</div> 
+
+<form id="formUploadJson" action="" method="post" target="hidden-form"  novalidate>
+    {{ formJsonUpload.hidden_tag() }}  
+    <div style="display:none">
+      {{ formJsonUpload.json_document() }}
+    </div>    
+</form>
+
+<iframe style="display:none" name="hidden-form"></iframe> 
+
+
+{% endblock %}
+
+
+{% block javascript %}
+<script type="text/javascript" src="{{url_for('static', filename='js/annotator_utils.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/annotator.js')}}"></script>
+{% endblock %}
+
+<!--  CSS FILES -->
+{% block css %}
+
+{% endblock %}
+
+{% block extra_script %}
+
+
+var currentMedia = 1;
+var mediaQtd = 0;
+
+var base_url = window.location.href.split("http://")[1];
+base_url = "http://"+base_url.split("/")[0];
+
+var mediaList = new Array();
+{% for media in mediaList %}
+    mediaList.push([{{media.id}}, base_url+"/media/{{dataset.title}}"+"{{media.path}}"]);         
+{% endfor %} 
+
+mediaQtd = mediaList.length;
+
+function update_current_media(media_url){
+  console.log(media_url)
+  annotator.load_image(media_url);
+}
+
+
+function update_label_current_media(dir){
+  
+    if (dir == 1){
+      currentMedia = currentMedia + 1;
+      if (currentMedia > mediaQtd)
+        currentMedia = mediaQtd;
+    }
+    else if (dir == -1){
+      currentMedia = currentMedia - 1;
+      if (currentMedia < 1)
+          currentMedia = 1;
+    }
+ 
+    document.getElementById("curMediaLabel").innerHTML = "1-"+currentMedia+" of "+mediaQtd;
+    update_current_media(mediaList[currentMedia-1][1]);
+    annotator.clear_boundingboxes();
+    annotator.set_cur_media_id(mediaList[currentMedia-1][0]);
+    annotator.request_annotation();
+}
+
+
+window.onload = function() {
+    update_label_current_media(0);
+    window.addEventListener( "keypress", doKeyDown, false )
+
+    annotator.set_dataset({{dataset.id}});
+
+    var tags = new Array();
+    {% for tag in tags %}
+        tags.push("{{tag}}");         
+    {% endfor %} 
+    annotator.add_labels(tags);
+    function loop() {
+      annotator.draw();
+      requestAnimationFrame(loop);
+    } 
+    loop();    
+  }; 
+{% endblock %}

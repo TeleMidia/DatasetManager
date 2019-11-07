@@ -1,0 +1,117 @@
+.sismo-canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+.side-box {
+    background: #2f323a;
+    color: #f2f2f2;
+    position: absolute;
+    height: 100%;
+    right: 0;
+    max-width: 265px;
+}
+
+.label-classes {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.ds p > muted {
+	font-size: 9px;
+	text-transform: uppercase;
+	font-style: italic;
+	color: #f2f2f2;
+}
+
+.ds a {
+    color: #4EA5CD;
+    font-size: 14px;
+}
+
+.ds .desc {
+	border-bottom: 1px solid #979797;
+	display: inline-block;
+	padding: 7px 0;
+	width: 100%;
+}
+
+.ds .desc:hover {
+	background: #666c7c;
+}
+
+.ds .selected{
+    background: #666c7c;
+}
+
+.tool_header {
+    display:inline-block;
+    margin-bottom:10px;
+    width:100%;
+}
+.tool_header .chk-all {
+    float:left;
+}
+.tool_header .chk-all,.tool_header .btn-group {
+    margin-right:5px;
+}
+.tool_header .chk-all,.tool_header .btn-group a.btn {
+    border: 1px solid #2f323a;
+    padding:5px 10px;
+    display:inline-block;
+    background:#fcfcfc;
+    color:#2f323a;
+}
+
+.tool_header .np-btn {
+    width: 45px;
+    text-align: center;
+}
+
+.tool_header .chk-all input[type=checkbox] {
+    margin-top:0;
+}
+.tool_header .btn-group a.all {
+    padding:0;
+    border:none;
+}
+
+.tool_header .sync{
+    margin: 0px 15px;
+}
+
+.tool_header h5{
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.tool_header h5 b{
+    font-size: 20px;
+}
+
+.tool_header select{
+    border: 1px solid;
+    border-radius: 0px;
+}
+
+
+
+.inbox-pagination a.np-btn {
+    border:1px solid #2f323a;
+    padding:5px 15px;
+    display:inline-block;
+    background:#fcfcfc;
+    color:#2f323a;
+    border-radius: 0px !important;
+}
+
+.inbox-pagination a.np-btn {
+    margin-left:5px;
+}
+
+
+

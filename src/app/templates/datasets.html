@@ -1,0 +1,338 @@
+<!--
+Copyright (C) 2019  Antonio José Grandson Busson (Telemidia/PUC-Rio)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "base_interface.html" %}
+
+<!--  MAIN CONTENT -->
+{% block main_content %}
+
+    <table cellpadding="0" cellspacing="0" border="0" class="display table table-bordered" id="hidden-table-info">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Owner</th>
+            <th class="hidden-phone">Load</th>
+            <th class="hidden-phone">Cur. Version</th>
+            <th class="hidden-phone"></th>
+            <th style="display: none"></th>
+            <th style="display: none"></th>
+            <th style="display: none"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+                {% for dataset in datasets %}
+                    <tr class="gradeA">
+                        <td>{{ dataset.title }}</td>
+                        <td>Antonio Busson</td>
+                        <td class="center hidden-phone">1000</td>
+                        <td class="center hidden-phone">1.0</td>
+                        <td class="center hidden-phone">
+                            <div class="pull-right hidden-phone">
+                                    <a href="/editor/{{ dataset.id }}"><button class="btn btn-success btn-xs"><i class="fa fa-edit"></i></button></a>
+                                    <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#EditDatasetForm" onclick="clickEditDatasetButton('{{ dataset.id }}')"><i class="fa fa-pencil"></i></button>
+                                    <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#DeleteDatasetForm" onclick="clickDeleteDatasetButton('{{ dataset.id }}')" ><i class="fa fa-trash-o "></i></button>
+                                    <button class="btn btn-warning btn-xs"><i class="fa fa-share-square"></i></button>
+                            </div>  
+                        </td>
+                        <td style="display: none">{{ dataset.description }}</td>
+                        <td style="display: none">{{ dataset.license }}</td>
+                        <td style="display: none">{{ dataset.type }}</td>
+                    </tr>
+                {% endfor %}           
+        </tbody>
+      </table>
+
+
+<!-- Create modal -->
+<div class="modal fade" id="CrtDatasetForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="" method="post" enctype="multipart/form-data" novalidate>
+            {{ formCreateDataset.hidden_tag() }}
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modalLabel">New Dataset</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>{{formCreateDataset.title.label}}</label>
+                    {{ formCreateDataset.title(size=32, class_="form-control") }}
+                    {% for error in formCreateDataset.title.errors %}
+                        <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label>{{formCreateDataset.description.label}}</label>
+                    {{ formCreateDataset.description(rows=2, class_="form-control") }}
+                </div>
+                <div class="form-group"> 
+                    <label>{{formCreateDataset.annotation_type.label}}</label>
+                    {{ formCreateDataset.annotation_type(class_="form-control") }}
+                </div>
+                <div class="form-group"> 
+                    <label style="width: 100%;" for="tags">Tags</label>
+                    <input data-role="tagsinput" class="form-control" id="tags" name="tags" required="" type="text" value="">
+                </div>
+                <div class="form-group">
+                    <label>{{formCreateDataset.license.label}}</label>
+                    {{ formCreateDataset.license(class_="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label>Media files (zipped)</label>
+                    {{ formCreateDataset.zip_file(class_="form-control") }}
+                    {% for error in formCreateDataset.zip_file.errors %}
+                        <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                {{ formCreateDataset.submit(class_="btn btn-primary") }}  
+            </div>
+            </form>   
+        </div>
+       
+    </div>
+</div>
+
+
+<!-- Edit modal -->
+<div class="modal fade" id="EditDatasetForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="" method="post" enctype="multipart/form-data" novalidate>
+                {{ formEditDataset.hidden_tag() }}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="modalLabel">Edit Dataset Info</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{{formEditDataset.title.label}}</label>
+                        {{ formEditDataset.title(size=32, class_="form-control") }}
+                        {% for error in formEditDataset.title.errors %}
+                            <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label>{{formEditDataset.description.label}}</label>
+                        {{ formEditDataset.description(rows=2, class_="form-control") }}
+                    </div>
+                    <div class="form-group"> 
+                        <label>{{formEditDataset.annotation_type.label}}</label>
+                        {{ formEditDataset.annotation_type(class_="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>{{formEditDataset.license.label}}</label>
+                        {{ formEditDataset.license(class_="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>Versions</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{ formEditDataset.submit(class_="btn btn-primary") }}  
+                </div>
+                </form>   
+            </div>
+           
+        </div>
+    </div>
+
+
+<!-- Delete modal -->
+<div class="modal fade" id="DeleteDatasetForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post"  novalidate>
+                {{ formDeleteDataset.hidden_tag() }}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="modalLabel">Delete Dataset</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="display:none">
+                        {{ formDeleteDataset.id() }}
+                    </div>    
+                    <div class="form-group">
+                        <div class="alert alert-danger"><b>Warning!</b> Unexpected bad things will happen if you don’t read this!</div>
+                         This action cannot be undone. This will permanently delete the <b id="dataset_name_del">XXX</b> dataset.
+                    </div>    
+                    <div class="form-group">
+                        <label>Please type in the name of the repository to confirm.</label>
+                        {{ formDeleteDataset.title(size=32, class_="form-control") }}
+                        {% for error in formEditDataset.title.errors %}
+                            <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer"> 
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        {{ formEditDataset.submit(class_="btn btn-primary") }}  
+                    </div>
+                </form>   
+            </div>
+           
+        </div>
+    </div> 
+
+{% endblock %}
+
+{% block content_menu %}
+<a class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#CrtDatasetForm">Add New Dataset</a>
+
+{% endblock %}
+
+<!--  RIGHT VIEW -->
+{% block right_view %}
+
+{% endblock %}
+
+<!--  JAVASCRIPT FILES -->
+{% block javascript %}
+<script type="text/javascript" language="javascript" src="{{url_for('static', filename='lib/advanced-datatable/js/jquery.dataTables.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='lib/advanced-datatable/js/DT_bootstrap.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='lib/bootstrap/js/bootstrap-tagsinput.min.js')}}"></script>
+{% endblock %}
+
+<!--  CSS FILES -->
+{% block css %} 
+<link href="{{url_for('static', filename='lib/advanced-datatable/css/demo_page.css')}}" rel="stylesheet" />
+<link href="{{url_for('static', filename='lib/advanced-datatable/css/demo_table.css')}}" rel="stylesheet" />
+<link rel="stylesheet" href="{{url_for('static', filename='lib/advanced-datatable/css/DT_bootstrap.css')}}" />
+<link rel="stylesheet" href="{{url_for('static', filename='lib/bootstrap/css/bootstrap-tagsinput.css')}}" />
+{% endblock %}
+
+<!--  EXTRA JAVASCRIPT CODE -->
+{% block extra_script %}
+
+var datasets_info = new Array();
+{% for dataset in datasets %}
+    datasets_info.push(['{{ dataset.id }}','{{ dataset.title }}','{{ dataset.description }}','{{ dataset.type }}', '{{ dataset.license }}']); 
+{% endfor %}  
+
+function clickEditDatasetButton(dataset_id){
+    dataset = '';
+    for(var i=0; i < datasets_info.length; i++){
+        if (datasets_info[i][0] == dataset_id){
+            dataset = datasets_info[i];
+            break;
+        }
+    }
+
+    if (dataset == '')
+        return;
+
+    console.log(dataset);
+
+    document.querySelector("#EditDatasetForm").querySelector("#title").value = dataset[1];
+    document.querySelector("#EditDatasetForm").querySelector("#description").value = dataset[2];
+    document.querySelector("#EditDatasetForm").querySelector("#annotation_type").selected = dataset[3];
+    document.querySelector("#EditDatasetForm").querySelector("#license").selected = dataset[4];
+}
+
+function clickDeleteDatasetButton(dataset_id){
+    dataset = '';
+    for(var i=0; i < datasets_info.length; i++){
+        if (datasets_info[i][0] == dataset_id){
+            dataset = datasets_info[i];
+            break;
+        }
+    }
+
+    if (dataset == '')
+        return;
+
+    console.log(dataset);
+    
+    document.querySelector("#DeleteDatasetForm").querySelector("#id").value = dataset[0];
+    document.querySelector("#DeleteDatasetForm").querySelector("#dataset_name_del").innerHTML = dataset[1];
+}
+
+/* Formating function for row details */
+function fnFormatDetails(oTable, nTr) {
+  var aData = oTable.fnGetData(nTr);
+  var sOut = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+  sOut += '<tr><td><b>Dataset:</b></td><td>' + aData[1] + ' ' + aData[4] + '</td></tr>';
+  sOut += '<tr><td><b>Description:</b></td><td>' + aData[6] + '</td></tr>';
+  sOut += '<tr><td><b>License:</b></td><td>' + aData[7] + '</td></tr>';
+  sOut += '<tr><td><b>Annotation type:</b></td><td>' + aData[8] + '</td></tr>';
+  sOut += '<tr><td><b>Annotators:</b></td><td>Jorge Salles, Marcos Silva, Sylvia Pontes e Sandro Santos</td></tr>';
+  sOut += '</table>';
+
+  return sOut;
+}
+
+
+$(document).ready(function() {
+  /*
+   * Insert a 'details' column to the table
+   */
+  var nCloneTh = document.createElement('th');
+  var nCloneTd = document.createElement('td');
+  nCloneTd.innerHTML = '<img src="static/lib/advanced-datatable/images/details_open.png">';
+  nCloneTd.className = "center";
+
+  $('#hidden-table-info thead tr').each(function() {
+    this.insertBefore(nCloneTh, this.childNodes[0]);
+  });
+
+  $('#hidden-table-info tbody tr').each(function() {
+    this.insertBefore(nCloneTd.cloneNode(true), this.childNodes[0]);
+  });
+
+  /*
+   * Initialse DataTables, with no sorting on the 'details' column
+   */
+  var oTable = $('#hidden-table-info').dataTable({
+    "aoColumnDefs": [{
+      "bSortable": false,
+      "aTargets": [0]
+    }],
+    "aaSorting": [
+      [1, 'asc']
+    ]
+  });
+
+  /* Add event listener for opening and closing details
+   * Note that the indicator for showing which row is open is not controlled by DataTables,
+   * rather it is done here
+   */
+  $('#hidden-table-info tbody td img').live('click', function() {
+    var nTr = $(this).parents('tr')[0];
+    if (oTable.fnIsOpen(nTr)) {
+      /* This row is already open - close it */
+      this.src = "static/lib/advanced-datatable/images/details_open.png";
+      oTable.fnClose(nTr);
+    } else {
+      /* Open this row */
+      this.src = "static/lib/advanced-datatable/images/details_close.png";
+      oTable.fnOpen(nTr, fnFormatDetails(oTable, nTr), 'details');
+    }
+  });
+});
+
+
+
+{% endblock %}
