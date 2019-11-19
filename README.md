@@ -8,7 +8,11 @@ With Python >= 3.6 and pip, install the dependencies:
     $ pip3 install flask 
     $ pip3 install flask-wtf
     $ pip3 install flask-sqlalchemy
+    $ pip3 install sqlalchemy-utils
     $ pip3 install flask-migrate
+    $ pip3 install flask-login
+    $ pip3 install flask-mail
+    $ pip3 install pyjwt
     
 From "/DatasetManager/src", run:   
 

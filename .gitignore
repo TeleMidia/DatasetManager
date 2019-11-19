@@ -6,7 +6,10 @@ __pycache__/
 #mac OS
 .DS_Store
 
+#app
 app.db
+migrations/
+instance/
 
 # C extensions
 *.so
