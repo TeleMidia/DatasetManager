@@ -1,5 +1,5 @@
-<!--
-Copyright (C) 2019  Antonio José Grandson Busson (Telemidia/PUC-Rio)
+'''
+Copyright (C) 2019  Telemidia/PUC-Rio <http://www.telemidia.puc-rio.br/>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,13 +13,10 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+'''
 
-{% extends "base.html" %}
+USER_TYPE = {"SUPER_ADM": "0", "ADM": "1", "NORMAL": "2"}
 
-{% block content %}
-    <h1>Hi, {{ user.username }}!</h1>
-    {% for post in posts %}
-    <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
-    {% endfor %}
-{% endblock %}
+USER_STATUS = {"ACTIVE": "0", "BLOCKED": "1"}
+
+ERROR_TYPE = {"SUCCESS": 0}

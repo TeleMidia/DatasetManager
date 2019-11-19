@@ -98,7 +98,7 @@ a, a:hover, a:focus {
 .btn-theme {
   color: #fff;
   background-color: #4EA5CD;
-  border-color: #48bcb4;
+  border-color: #4EA5CD;
 }
 .btn-theme:hover,
 .btn-theme:focus,
@@ -106,54 +106,10 @@ a, a:hover, a:focus {
 .btn-theme.active,
 .open .dropdown-toggle.btn-theme {
   color: #fff;
-  background-color: #48bcb4;
-  border-color: #48bcb4;
+  background-color: #193F51;
+  border-color: #193F51;
 }
 
-.btn-theme02 {
-  color: #fff;
-  background-color: #ac92ec;
-  border-color: #967adc;
-}
-.btn-theme02:hover,
-.btn-theme02:focus,
-.btn-theme02:active,
-.btn-theme02.active,
-.open .dropdown-toggle.btn-theme02 {
-  color: #fff;
-  background-color: #967adc;
-  border-color: #967adc;
-}
-
-.btn-theme03 {
-  color: #fff;
-  background-color: #48cfad;
-  border-color: #37bc9b;
-}
-.btn-theme03:hover,
-.btn-theme03:focus,
-.btn-theme03:active,
-.btn-theme03.active,
-.open .dropdown-toggle.btn-theme03 {
-  color: #fff;
-  background-color: #37bc9b;
-  border-color: #37bc9b;
-}
-
-.btn-theme04 {
-  color: #fff;
-  background-color: #ed5565;
-  border-color: #da4453;
-}
-.btn-theme04:hover,
-.btn-theme04:focus,
-.btn-theme04:active,
-.btn-theme04.active,
-.open .dropdown-toggle.btn-theme04 {
-  color: #fff;
-  background-color: #da4453;
-  border-color: #da4453;
-}
 
 .btn-clear-g {
 	color: #48bcb4;
@@ -1937,7 +1893,7 @@ ul li {
 	margin: 100px auto 0;
 	background: #fff;
 	border-radius: 5px;
-	-webkit-border-radius: 5px;
+	-webkit-border-radius: 0px;
 }
 
 .form-login h2.form-login-heading {
@@ -1945,8 +1901,8 @@ ul li {
 	padding: 25px 20px;
 	text-align: center;
 	background: #4EA5CD;
-	border-radius: 5px 5px 0 0;
-	-webkit-border-radius: 5px 5px 0 0;
+	border-radius: 0px;
+	-webkit-border-radius: 0px;
 	color: #fff;
 	font-size: 20px;
 	text-transform: uppercase;

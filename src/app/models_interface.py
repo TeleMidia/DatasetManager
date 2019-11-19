@@ -1,5 +1,5 @@
 '''
-Copyright (C) 2019  Antonio José Grandson Busson (Telemidia/PUC-Rio)
+Copyright (C) 2019  Telemidia/PUC-Rio <http://www.telemidia.puc-rio.br/>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,29 @@ class DataBaseManager():
     def __init__(self):
         self.folder = "/"
         self.fileManager = FileManager()
+
+    #begin user interface
+    def getAllUser(self):
+         return User.query.all()
+
+    def getUserById(self, user_id_p):
+        return User.query.get(user_id_p).first()
+    
+    def getUserByEmail(self, email_p):
+        return User.query.filter_by(email=email_p).first()
+
+    def registerUser(self, email_p, type_p, name_p, password, active_p):
+
+        # check if e-mail already registered
+        if User.query.filter_by(email=email_p).first() is None:
+            new_user = User(email=email_p, role=type_p, name=name_p, active=active_p)
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+            return 0, "Sucess"
+        else:
+            return 1, "Error: e-mail name already registered."   
+    #end user interface
 
     def createDataset(self, title_p, description_p, type_p, owner_id_p, license_p, zipfile_, tags_p):
         # check if exists a dataset with same name

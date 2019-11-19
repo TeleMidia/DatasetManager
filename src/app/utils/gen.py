@@ -1,4 +1,4 @@
-/*
+'''
 Copyright (C) 2019  Telemidia/PUC-Rio <http://www.telemidia.puc-rio.br/>
 
 This program is free software: you can redistribute it and/or modify
@@ -13,19 +13,17 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+'''
+
+import random
+import string
+
+def randomString(stringLength=6):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-var colors = [ 
-    [255, 0, 0],
-    [0, 0, 255],
-    [0, 255, 0],
-    [255, 255, 0],
-    [255, 0, 255],
-    [0, 255, 255],
-    [255, 255, 255]
-];
-
-function getColorByInt(index){
-    return colors[index]; 
-}
+def gen_new_user_email_text(userName, userEmail, userPassword):
+    #temp
+    print()

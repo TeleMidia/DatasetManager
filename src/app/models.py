@@ -1,5 +1,5 @@
 '''
-Copyright (C) 2019  Antonio José Grandson Busson (Telemidia/PUC-Rio)
+Copyright (C) 2019  Telemidia/PUC-Rio <http://www.telemidia.puc-rio.br/>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,19 +16,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from app import db
+from app import login
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
-class User(db.Model):
+
+
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.Integer) #0-admin 1-annotator
-    username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    role = db.Column(db.Integer) #0-superadmin #1- admin #2- normal
+    name = db.Column(db.String(64), index=True)
     password_hash = db.Column(db.String(128))
-    
-    def __repr__(self):
-        return '<User id:{} type:{} username:{} e-mail:{}>'.format(self.id, 
-            self.type, self.username, self.email)
+    active = db.Column(db.Boolean, default=False)
 
+    def __repr__(self):
+        return '<User id:{} type:{} name:{} e-mail:{} active:{} password_hash:{}>'.format(self.id, 
+            self.type, self.name, self.email, self.active, self.password_hash)
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,7 +59,7 @@ class Dataset(db.Model):
 
    
     def __repr__(self):
-        return '<Database id:{} title:{} type:{} timestamp:{} owner_id:{} version:{} license:{}>'.format(
+        return '<Dataset id:{} title:{} type:{} timestamp:{} owner_id:{} version:{} license:{}>'.format(
             self.id, self.title, self.type, self.timestamp, self.owner_id, self.version, self.license)
 
 class Media(db.Model):

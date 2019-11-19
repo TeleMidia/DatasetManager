@@ -1,0 +1,95 @@
+<!--
+Copyright (C) 2019  Telemidia/PUC-Rio <http://www.telemidia.puc-rio.br/>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "base.html" %}
+
+<!--  BODY CONTENT -->
+{% block body_content %}
+
+<div id="login-page">
+    <div class="container">
+        <form action="/login" class="form-login" method="post" enctype="multipart/form-data" novalidate>
+                {{ loginForm.hidden_tag() }}
+            <h2 class="form-login-heading">login</h2>
+            <div class="login-wrap">
+                {{loginForm.username(size=42, class_="form-control") }}
+                {% for error in loginForm.username.errors %}
+                    <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                {% endfor %}
+                {% if error_code == 1 %}
+                    <small id="emailHelp" class="form-text text-muted" style="color: red;">User is not registered</small>
+                {% endif %} 
+                <br>
+                {{loginForm.password(size=16, class_="form-control") }}
+                {% for error in loginForm.password.errors %}
+                    <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                {% endfor %}
+                {% if error_code == 2 %}
+                    <small id="emailHelp" class="form-text text-muted" style="color: red;">Wrong password</small>
+                {% endif %}
+              <label class="checkbox">
+                <span class="pull-right">
+                    <a data-toggle="modal" href="login.html#myModal"> Forgot Password?</a>
+                </span>
+              </label>
+              {{loginForm.submit(class_="btn btn-primary") }} 
+          <hr>
+          <div class="registration">
+            Don't have an account yet?<br/>
+            <a class="" href="#">
+              Create an account
+              </a>
+          </div>
+        </form>
+        </div>
+        <!-- Modal -->
+        <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="myModal" class="modal fade">
+        <form action="/login" class="form-login" method="post" enctype="multipart/form-data" novalidate>
+            {{ forgotPasswordForm.hidden_tag() }}
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Forgot Password ?</h4>
+              </div>
+              <div class="modal-body">
+                <p>Enter your e-mail address below to reset your password.</p>
+                {{ forgotPasswordForm.email(size=42, class_="form-control") }}
+              </div>
+              <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default" type="button">Cancel</button>
+                {{ forgotPasswordForm.submit(class_="btn btn-theme") }} 
+              </div>
+            </div>
+          </div>
+        </form>  
+        </div>
+        <!-- modal -->
+    </div>
+</div>
+
+{% endblock %}
+
+<!-- JAVASCRIPT  -->
+{% block javascript %}
+  <script type="text/javascript" src="{{url_for('static', filename='lib/jquery.backstretch.min.js')}}"></script>
+  <script>
+    $.backstretch("{{url_for('static', filename='img/login_background.jpg')}}", {
+      speed: 500
+    });
+  </script>
+{% endblock %}
