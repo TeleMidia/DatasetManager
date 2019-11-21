@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 {% block main_content %}
 <div class="row">
-    <div class="col-md-12 mb">
+    <div id="editor_container" class="col-md-12 mb">
        
           <div class="tool_header col-md-12 mb">
                 <div class="chk-all">
@@ -65,22 +65,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <div class="btn-group hidden-phone">  
                   <select id="select_tag" onchange="this.selectedIndex" class="form-control">
                       {% for tag in tags %}
-                          <option onclick="select_label_event({{loop.index}})" >{{tag}}</option>         
+                          <option onclick="select_label_event({{loop.index}},'{{tag}}')" >{{tag}}</option>         
                       {% endfor %} 
                   </select>
               </div>
               <ul class="unstyled inbox-pagination">
-                  <li><span id="scaleLabel">View-scale: 70%</span></li>
+                  <li><span id="scaleLabel">800 x 600 (w x h)</span></li>
                   <li>
-                  <a class="np-btn" onclick="change_canvas_scale(-10)"><i class="fa fa-search-minus pagination-left"></i></a>
+                  <a class="np-btn" onclick="change_canvas_scale(-50, 'sismo_canvas')"><i class="fa fa-search-minus pagination-left"></i></a>
                   </li>
                   <li>
-                  <a class="np-btn" onclick="change_canvas_scale(10)"><i class="fa fa-search-plus pagination-right"></i></a>
+                  <a class="np-btn" onclick="change_canvas_scale(50, 'sismo_canvas')"><i class="fa fa-search-plus pagination-right"></i></a>
                   </li>
               </ul>  
           </div>  
       
-        <canvas class="sismo-canvas" id="sismo_canvas" width="500" height="500" ></canvas>
+        <canvas class="sismo-canvas" id="sismo_canvas" width="800" height="500" ></canvas>
     </div>
 </div> 
 
@@ -118,7 +118,7 @@ base_url = "http://"+base_url.split("/")[0];
 
 var mediaList = new Array();
 {% for media in mediaList %}
-    mediaList.push([{{media.id}}, base_url+"/media/{{dataset.title}}"+"{{media.path}}"]);         
+    mediaList.push([{{media.id}}, base_url+"/media/dataset_{{dataset.id}}"+"{{media.path}}"]);         
 {% endfor %} 
 
 mediaQtd = mediaList.length;
@@ -149,12 +149,19 @@ function update_label_current_media(dir){
     annotator.request_annotation();
 }
 
+function adapt_canvas_to_container(){
+    var container =  document.getElementById("editor_container");
+    annotator.set_max_min_dims(parseInt(container.offsetWidth*0.9), parseInt(container.offsetWidth*0.5));
+    change_canvas_scale(0, 'sismo_canvas');
+}
 
 window.onload = function() {
     update_label_current_media(0);
     window.addEventListener( "keypress", doKeyDown, false )
 
     annotator.set_dataset({{dataset.id}});
+
+    adapt_canvas_to_container();
 
     var tags = new Array();
     {% for tag in tags %}
@@ -166,5 +173,13 @@ window.onload = function() {
       requestAnimationFrame(loop);
     } 
     loop();    
-  }; 
+  };
+  
+window.onresize = function() {
+    if (annotator == null)
+        return;
+
+    adapt_canvas_to_container();     
+};  
+
 {% endblock %}

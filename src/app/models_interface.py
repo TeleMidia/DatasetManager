@@ -16,10 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from app import app, db
-from app.models import User, Dataset, Media, Annotation
+from app.models import User, Dataset, Media, Annotation, User_Dataset
 from app.filemanager import FileManager
 from app.importer import Importer
-
+from app.utils.types import *
 import os
 
 from werkzeug.utils import secure_filename
@@ -35,10 +35,13 @@ class DataBaseManager():
          return User.query.all()
 
     def getUserById(self, user_id_p):
-        return User.query.get(user_id_p).first()
+        return User.query.get(user_id_p)
     
     def getUserByEmail(self, email_p):
         return User.query.filter_by(email=email_p).first()
+
+    def getUserByDatasetId(self, dataset_id_p):
+        return User_Dataset.query.filter_by(dataset_id=dataset_id_p)
 
     def registerUser(self, email_p, type_p, name_p, password, active_p):
 
@@ -53,31 +56,43 @@ class DataBaseManager():
             return 1, "Error: e-mail name already registered."   
     #end user interface
 
-    def createDataset(self, title_p, description_p, type_p, owner_id_p, license_p, zipfile_, tags_p):
+    def createDataset(self, title_p, description_p, annotation_type_p, owner_id_p, license_p, zipfile_, tags_p, annotators_p):
         # check if exists a dataset with same name
         if Dataset.query.filter_by(title=title_p).first() is None:
-            new_dataset = Dataset(title=title_p, description=description_p, type=type_p, owner_id=owner_id_p, license=license_p, tags=tags_p)
+            new_dataset = Dataset(title=title_p, description=description_p, annotation_type=annotation_type_p, owner_id=owner_id_p, license=license_p, tags=tags_p)
             db.session.add(new_dataset)
             db.session.commit()
 
+            #who can annotate this dataset
+            annotators = annotators_p.split(",")
+            for annotator in annotators:
+                user = self.getUserByEmail(annotator)
+                if  user is not None:
+                    new_user_dataset = User_Dataset(user_id=user.id, dataset_id=new_dataset.id)
+                    db.session.add(new_user_dataset)
+            db.session.commit()
+            
+            #extract all files from .zip
             if zipfile_ is not None:
                 #save and extract dataset
                 file_name = secure_filename(zipfile_.filename)
-                storage_path = os.path.join(app.instance_path, 'DATASET_UPLOADS')
-                
-                self.fileManager.saveDataset(storage_path, new_dataset.title, file_name, zipfile_)
+                storage_path = os.path.join(app.instance_path, 'datasets')
+                dataset_root_folder = "dataset_"+str(new_dataset.id)
+                self.fileManager.saveDataset(storage_path, dataset_root_folder, file_name, zipfile_)
 
-            
-                storage_path = os.path.join(storage_path, new_dataset.title)
+                storage_path = os.path.join(storage_path, dataset_root_folder)
                 
                 #get all images
-                imagesPathList = self.fileManager.getAllFilePaths(storage_path, ["jpg","png"]) 
+                imagesPathList = self.fileManager.getAllFilePaths(storage_path, ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]) 
 
                 for file_ in imagesPathList:
                     new_media = Media(path=file_, database_id=new_dataset.id)
                     db.session.add(new_media)
                 
+                new_dataset.load = len(imagesPathList)
 
+                db.session.commit()
+                '''
                 #get all json
                 jsonPathList = self.fileManager.getAllFilePaths(storage_path, ["json"]) 
 
@@ -107,9 +122,8 @@ class DataBaseManager():
 
                         # if count > 0:
 
-
-                db.session.commit()
-            
+                '''
+                
             return 0, "Sucess"
         else:
             return 1, "Error: dataset name already exists."    
@@ -127,7 +141,6 @@ class DataBaseManager():
 
             #get all media from dataset    
             media = Media.query.filter_by(database_id=dataset_id_p)
-
             if media is not None:
                 for m in media:
                     annotations = Annotation.query.filter_by(media_id=m.id)
@@ -135,10 +148,17 @@ class DataBaseManager():
                         for a in annotations:
                             db.session.delete(a)
                     db.session.delete(m)
+            
+
+            #get all related users to this dataset
+            user_datasets = User_Dataset.query.filter_by(dataset_id=dataset_id_p)
+            if user_datasets is not None:
+                for user_dataset in user_datasets:
+                    db.session.delete(user_dataset)    
 
             db.session.commit()
 
-            storage_path = os.path.join(app.instance_path, 'DATASET_UPLOADS', dataset.title)
+            storage_path = os.path.join(app.instance_path, 'datasets', "dataset_"+str(dataset.id))
             self.fileManager.deleteFolder(storage_path)
 
             return 0, "Sucess"
@@ -157,11 +177,11 @@ class DataBaseManager():
     def getMediaOfDatasetById(self, dataset_id_p, media_id_p):
         return Media.query.filter_by(database_id=dataset_id_p, id=media_id_p)
 
-    def set_json(self, media_id_p, json_document):
+    def set_json(self, media_id_p, user_id_p, json_document):
         annotation = Annotation.query.filter_by(media_id=media_id_p).first()
 
         if annotation is None:
-            annotation = Annotation(media_id=media_id_p, json_data=json_document)
+            annotation = Annotation(media_id=media_id_p, user_id=user_id_p, json_data=json_document)
             db.session.add(annotation)
         else:
             annotation.json_data = json_document

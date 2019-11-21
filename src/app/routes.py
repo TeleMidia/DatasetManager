@@ -21,6 +21,7 @@ from app.forms import LoginForm, ForgotPasswordForm, CreateDatasetForm, EditData
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models_interface import DataBaseManager
 from app.utils.gen import *
+from app.utils.types import * 
 from app.utils.messages import send_email
 import os
 
@@ -62,32 +63,35 @@ def logout():
     return redirect(url_for('login'))
 
 
-
-
 @app.route('/users', methods=['GET', 'POST'])
 @login_required
 def users():
 
+    '''
+    if current_user.role != int(USER_TYPE["SUPER_ADM"]):
+        return redirect(url_for('500'))
+    '''
+
     editUserForm = EditUserForm() 
     createUserForm = CreateUserForm()
-    
+        
     if createUserForm.validate_on_submit():
-
         temp_password = randomString()
-
+        temp_password = "123456"
         if databaseManager.registerUser(email_p=createUserForm.email.data, type_p=int(createUserForm.role.data), 
-                                    name_p=createUserForm.username.data, password=temp_password, active_p=False) == 0:
+                                        name_p=createUserForm.username.data, password=temp_password, active_p=False) == 0:
             print("the user has been created")
-            send_email("Um teste", "ajgbusson@gmail.com", [createUserForm.email.data],"Um teste", "<h4> Um teste </h4>")
+            #send_email("Um teste", "ajgbusson@gmail.com", [createUserForm.email.data],"Um teste", "<h4> Um teste </h4>")
         else:
             print("e-mail already registered")
-    
+        
     if editUserForm.validate_on_submit():
         print("EDIT", editUserForm.id.data, editUserForm.role.data, editUserForm.active.data)  
+        
     
-   
     users = databaseManager.getAllUser()
     return render_template('user_table.html', title="USERS", users=users, createUserForm=createUserForm, editUserForm=editUserForm)
+    
 
 
 @app.route('/datasets', methods=['GET', 'POST'])
@@ -101,8 +105,9 @@ def datasets():
     if formCreateDataset.validate_on_submit():
         req_code, req_msg = databaseManager.createDataset(title_p = formCreateDataset.title.data, 
             description_p = formCreateDataset.description.data, 
-            type_p = formCreateDataset.annotation_type.data, owner_id_p = current_user.id, 
-            license_p = formCreateDataset.license.data, zipfile_=formCreateDataset.zip_file.data, tags_p=formCreateDataset.tags.data)
+            annotation_type_p = int(formCreateDataset.annotation_type.data), owner_id_p = current_user.id, 
+            license_p = int(formCreateDataset.license.data), zipfile_=formCreateDataset.zip_file.data, 
+            tags_p=formCreateDataset.tags.data, annotators_p=formCreateDataset.annotators.data)
 
     #if formEditDataset.validate_on_submit():
 
@@ -111,9 +116,24 @@ def datasets():
 
 
     datasets = databaseManager.getAllDatasets()
+    datasets_annotators = []
+    for dataset in datasets:
+        dataset.annotators = [[], ""]
+        users = databaseManager.getUserByDatasetId(dataset_id_p=dataset.id)
+        if users is not None:
+            dataset.annotators[0] = users 
+            for index, user in enumerate(users):
+                pre_str = ", "
+                if index == 0:
+                    pre_str = ""
+                if index == users.count()-1:
+                    pre_str = " and "
+                dataset.annotators[1] += pre_str+databaseManager.getUserById(user.user_id).name
+
     return render_template('datasets.html', title="DATASETS", 
         formCreateDataset=formCreateDataset, formEditDataset=formEditDataset, 
-        formDeleteDataset=formDeleteDataset, datasets=datasets)
+        formDeleteDataset=formDeleteDataset, datasets=datasets, 
+        getTypeByValue=getTypeByValue, getUserById=databaseManager.getUserById)
 
 @app.route('/editor/<dataset_id>')
 @login_required
@@ -144,7 +164,7 @@ def setAnnotation(dataset_id, media_id):
         media = databaseManager.getMediaOfDatasetById(dataset_id, media_id)
 
         if  media is not None:
-            databaseManager.set_json(media_id, formJsonUpload.json_document.data)
+            databaseManager.set_json(media_id, current_user.id, formJsonUpload.json_document.data)
             return 'ok'
 
     return 'erro'
@@ -172,7 +192,7 @@ def getMedia(path):
     if not current_user.is_authenticated:
         return 
 
-    return send_from_directory(os.path.join(app.instance_path, 'DATASET_UPLOADS'),
+    return send_from_directory(os.path.join(app.instance_path, app.config['DATASETS_STORAGE']),
                  path, as_attachment=True)
 
 

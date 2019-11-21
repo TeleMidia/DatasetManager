@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, SelectField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, TextAreaField, SelectField, BooleanField, IntegerField, SubmitField
 from wtforms.validators import DataRequired,  Email
 from wtforms.fields.html5 import EmailField
 from flask_wtf.file import FileField, FileRequired
@@ -45,19 +45,21 @@ class EditUserForm(FlaskForm):
     edit = SubmitField('Edit')
 
 class CreateDatasetForm(FlaskForm):
-    title = StringField('Dataset title', validators=[DataRequired()])
+    title = StringField('Dataset title', validators=[DataRequired()], render_kw={"placeholder": "title"})
     description = TextAreaField('Description')
-    license = SelectField('License', choices=[('Unlicense', 'Unlicense'), ('GNU AGPLv3', 'GNU AGPLv3'), ('GNU GPLv3', 'GNU GPLv3'), ('GNU LGPLv3', 'GNU LGPLv3'), ('Mozilla Public License 2.0', 'Mozilla Public License 2.0'), ('MIT License', 'MIT License')])
-    annotation_type = SelectField('Annotation type', choices=[('Classification', 'Classification'), ('Detection', 'Detection'), ('Segmentation', 'Segmentation')])
+    license = SelectField('License', choices=[(LICENSE_TYPE["UNLICENSE"], 'Unlicense'), (LICENSE_TYPE["GNU_AGPLV3"], 'GNU AGPLv3'), (LICENSE_TYPE["GNU_GPLV3"], 'GNU GPLv3'), (LICENSE_TYPE["GNU_LGPLV3"], 'GNU LGPLv3'), (LICENSE_TYPE["MOZILLA_PUBLIC_LICENSE_2"], 'Mozilla Public License 2.0'), (LICENSE_TYPE["MIT_LiCENSE"], 'MIT License')])
+    annotation_type = SelectField('Annotation type', choices=[(ANNOTATION_TYPE["CLASSIFICATION"], 'Classification'), (ANNOTATION_TYPE["DETECTION"], 'Detection'), (ANNOTATION_TYPE["SEGMENTATION"], 'Segmentation')])
     tags = StringField('Tags', validators=[DataRequired()])
+    annotators = StringField('Annotators e-mail', validators=[DataRequired()])
+    batch_size = IntegerField('Batch Size', validators=[DataRequired()], render_kw={"value": "100"})
     zip_file = FileField(validators=[FileRequired()])
     submit = SubmitField('Submit')
 
 class EditDatasetForm(FlaskForm):
     title = StringField('Dataset title', validators=[DataRequired()])
     description = TextAreaField('Description')
-    license = SelectField('License', choices=[('Unlicense', 'Unlicense'), ('GNU AGPLv3', 'GNU AGPLv3'), ('GNU GPLv3', 'GNU GPLv3'), ('GNU LGPLv3', 'GNU LGPLv3'), ('Mozilla Public License 2.0', 'Mozilla Public License 2.0'), ('MIT License', 'MIT License')])
-    annotation_type = SelectField('Annotation type', choices=[('Classification', 'Classification'), ('Detection', 'Detection'), ('Segmentation', 'Segmentation')])
+    license = SelectField('License', choices=[(LICENSE_TYPE["UNLICENSE"], 'Unlicense'), (LICENSE_TYPE["GNU_AGPLV3"], 'GNU AGPLv3'), (LICENSE_TYPE["GNU_GPLV3"], 'GNU GPLv3'), (LICENSE_TYPE["GNU_LGPLV3"], 'GNU LGPLv3'), (LICENSE_TYPE["MOZILLA_PUBLIC_LICENSE_2"], 'Mozilla Public License 2.0'), (LICENSE_TYPE["MIT_LiCENSE"], 'MIT License')])
+    annotation_type = SelectField('Annotation type', choices=[(ANNOTATION_TYPE["CLASSIFICATION"], 'Classification'), (ANNOTATION_TYPE["DETECTION"], 'Detection'), (ANNOTATION_TYPE["SEGMENTATION"], 'Segmentation')])
     submit = SubmitField('Submit')
 
 class DeleteDatasetForm(FlaskForm):

@@ -29,10 +29,27 @@ function doKeyDown(e) {
   
 }
 
-function change_canvas_scale(signal){
+function change_canvas_scale(signal, canvas_id){
     if (annotator == null)
       return;
 
+      var canvas =  document.getElementById(canvas_id)
+
+      var new_width = canvas.width + signal;
+
+      dims = annotator.get_max_min_dims()
+
+      if (new_width > dims[0])
+        new_width = dims[0]
+      else if (new_width < dims[1])
+        new_width = dims[1] 
+
+      var new_height = parseInt((canvas.height*new_width)/canvas.width)
+
+      canvas.width  = new_width;
+      canvas.height = new_height;
+
+    /*
     var cur_scale = annotator.get_scale();
 
     cur_scale += signal;
@@ -41,8 +58,9 @@ function change_canvas_scale(signal){
       cur_scale = 50;
     else if(cur_scale > 100)
       cur_scale = 100;
- 
-    annotator.set_scale(cur_scale);
+    */
+
+    annotator.set_scale(100);
 
 }
 
@@ -64,7 +82,7 @@ function mouse_drag_event(event){
   annotator.mouse_drag(event.offsetX, event.offsetY);
 }
 
-function select_label_event(label_index){
+function select_label_event(label_index, label_str){
 
   if (annotator == null)
     return;   
@@ -107,6 +125,10 @@ class BoundingBox {
     }
     get_data(){
       return [this.label_id, this.x, this.y, this.w, this.h];
+    }
+    set_origin(x, y){
+      this.x = x;
+      this.y = y;
     }
     set_dims(width, height){
       this.w = width;
@@ -212,11 +234,24 @@ class BoundingBox {
       //console.log(this.x, this.y, this.w, this.h);  
     }
     draw(ctx) {
+
+      ctx.strokeStyle = this.color;
+      ctx.fillStyle =  this.color;
+      ctx.globalAlpha = 0.2;
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+      ctx.globalAlpha = 1.0;
+
+      /*
+      ctx.font = 'normal 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'white';
+      ctx.fillText("loading media ...", parseInt(this.x + (this.w/2)), parseInt(this.y + (this.h/2))); 
+      */
+
       ctx.beginPath();
       ctx.lineWidth = this.line_wdth;
       if (this.is_seleced == true)
         ctx.setLineDash([5, this.trace_size]);
-      ctx.strokeStyle = this.color;
       ctx.rect(this.x, this.y, this.w, this.h);
       ctx.stroke();
       
@@ -292,10 +327,11 @@ class Annotator {
       this.submitForm = document.getElementById(submitForm_id);
       this.dataset_id = null;
       this.current_media_id = null;
-      this.scale = 70;
+   
 
       this.canvas_width = this.ctx.offsetWidth;
       this.canvas_height = this.ctx.offsetHeight;
+
 
       this.ctx.addEventListener("mousedown", mouse_down_event, false);
       this.ctx.addEventListener("mouseup", mouse_up_event, false);
@@ -314,7 +350,9 @@ class Annotator {
       this.acctime = 0
       this.startTime = new Date();
       this.currentLabel = 0
-     
+      this.max_width = null;
+      this.min_width = null;
+      this.img_loaded = false;
     }
 
     get_bbQtd(){
@@ -327,15 +365,54 @@ class Annotator {
     get_width_height(){
       return [this.canvas_width, this.canvas_height];
     }
+  
+    set_max_min_dims(max_width, min_width){
+      this.max_width = max_width;
+      this.min_width = min_width;
+    }
 
-    get_scale(){
-      return this.scale;
+    get_max_min_dims(){
+      return [this.max_width, this.min_width]
+    }
+
+    update_canvas_size_label(){
+      
+      var label = document.getElementById("scaleLabel"); 
+      label.innerHTML = this.canvas_width+" x "+this.canvas_height+" (w x h)";
+    }
+
+    set_dimsBasedOnImageSize(img_w, img_h){
+
+      var canvas = document.getElementById(this.canvas_id); 
+
+      canvas.height = parseInt((canvas.width*img_h)/img_w);
+
+      this.canvas_width = canvas.offsetWidth;
+      this.canvas_height = canvas.offsetHeight;
+
+      this.update_canvas_size_label();
     }
 
     set_scale(scale){
-      this.scale = scale;
+
+      var canvas = document.getElementById(this.canvas_id); 
       
-      var canvas = document.getElementById(this.canvas_id);  
+        for (var bs = 0; bs < this.boundingBoxes.length; bs++) {
+
+          var data = this.boundingBoxes[bs].get_data();
+        
+       
+          var x = (data[1]/this.canvas_width);
+          var y = (data[2]/this.canvas_height);
+          var w = (data[3]/this.canvas_width);
+          var h = (data[4]/this.canvas_height);
+
+          this.boundingBoxes[bs].set_origin(parseInt(x*canvas.offsetWidth), parseInt(y*canvas.offsetHeight));
+          this.boundingBoxes[bs].set_dims(parseInt(w*canvas.offsetWidth), parseInt(h*canvas.offsetHeight));
+
+          this.update_canvas_size_label();
+        }
+       
       this.canvas_width = canvas.offsetWidth;
       this.canvas_height = canvas.offsetHeight;
 
@@ -359,6 +436,10 @@ class Annotator {
     }
 
     remove_current_bb(){
+
+      if (this.img_loaded == false)
+        return;
+
       var act_box_index = -1;
 
       for (var s_i = 0; s_i < this.boundingBoxes.length; s_i++) {
@@ -405,10 +486,20 @@ class Annotator {
 
       //console.log("labels added", this.labelsList.length);
     }
+    set_loaded_flag(value){
+      this.img_loaded = value;
+    }
 
     load_image(img_src){
+      this.img_loaded = false;
       this.sismo_image = new Image();
+      this.sismo_image.onload = function() {
+        annotator.set_dimsBasedOnImageSize(this.width, this.height);
+        annotator.set_loaded_flag(true);
+      };
       this.sismo_image.src = img_src;
+
+      //console.log("loading media", img_src)
     }
 
     clear_boundingboxes(){
@@ -422,6 +513,9 @@ class Annotator {
     }
 
     mouse_up(mouse_x, mouse_y){
+      if (this.img_loaded == false)
+        return;
+
       this.mouse_is_down = false;
       //console.log("mouse_up", mouse_x, mouse_y); 
       
@@ -429,6 +523,10 @@ class Annotator {
     }
 
     mouse_down(mouse_x, mouse_y){
+      if (this.img_loaded == false)
+        return;
+
+
       this.mouse_is_down = true;
 
       var select_one = false;
@@ -451,6 +549,8 @@ class Annotator {
 
     mouse_drag(mouse_x, mouse_y){
       //console.log(this.mouse_down)
+      if (this.img_loaded == false)
+        return;
       
       if (this.mouse_is_down == true){
         //console.log("mouse_drag", mouse_x, mouse_y);
@@ -465,6 +565,17 @@ class Annotator {
     }
 
     draw() {
+
+      if (this.img_loaded == false){
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(0, 0, this.canvas_width, this.canvas_height);
+        this.ctx.font = 'normal bold 20px sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText("loading media ...", parseInt(this.canvas_width/2), parseInt(this.canvas_height/2) ); 
+        return;
+      }
+
 
       var curtime = new Date();
       this.acctime = this.acctime + (curtime - this.startTime); 

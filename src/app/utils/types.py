@@ -20,3 +20,24 @@ USER_TYPE = {"SUPER_ADM": "0", "ADM": "1", "NORMAL": "2"}
 USER_STATUS = {"ACTIVE": "0", "BLOCKED": "1"}
 
 ERROR_TYPE = {"SUCCESS": 0}
+
+ANNOTATION_TYPE = {"CLASSIFICATION": "0", "DETECTION": "1" ,"SEGMENTATION": "2"}
+
+LICENSE_TYPE = {"UNLICENSE": "0", "GNU_AGPLV3": "1", "GNU_GPLV3": "2", 
+"GNU_LGPLV3": "3", "MOZILLA_PUBLIC_LICENSE_2": "4", "MIT_LiCENSE": "5"}
+
+
+def getKeyByValue(dict, value_p):
+    for key, value in dict.items():    
+        if int(value) == value_p:
+            return key
+
+    return None
+
+def getTypeByValue(category_p, value_p):
+    global USER_TYPE, USER_STATUS, ERROR_TYPE, ANNOTATION_TYPE, LICENSE_TYPE
+    print('CALL!')
+    if category_p == "ANNOTATION":
+        return getKeyByValue(ANNOTATION_TYPE, value_p)
+    elif category_p == "LICENSE":
+        return getKeyByValue(LICENSE_TYPE, value_p)

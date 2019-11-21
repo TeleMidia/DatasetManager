@@ -42,6 +42,7 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+#aux function
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -50,13 +51,14 @@ class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(300))
-    type = db.Column(db.String(20), index=True) 
+    annotation_type = db.Column(db.Integer, index=True, default=0)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     version = db.Column(db.Integer, default=10)
-    license = db.Column(db.String(30), index=True, default="Unlicense")
+    license =  db.Column(db.Integer, index=True, default=0)
     tags = db.Column(db.String(180))
-
+    load = db.Column(db.Integer, default=0)
+    batch_count = db.Column(db.Integer, default=0)
    
     def __repr__(self):
         return '<Dataset id:{} title:{} type:{} timestamp:{} owner_id:{} version:{} license:{}>'.format(
@@ -64,6 +66,7 @@ class Dataset(db.Model):
 
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    batch_index = db.Column(db.Integer,  index=True)
     path = db.Column(db.String(64), index=True) 
     database_id = db.Column(db.Integer, db.ForeignKey('dataset.id'))
 
@@ -71,10 +74,20 @@ class Media(db.Model):
         return '<Media id:{} path:{} database_id:{}>'.format(self.id, self.path, self.database_id)
 
 
+
 class Annotation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     json_data = db.Column(db.JSON)
 
     def __repr__(self):
         return '<Annotation id:{} media_id:{} json_data:{}>'.format(self.id, self.path, self.database_id)
+
+
+class User_Dataset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'))
+
+
