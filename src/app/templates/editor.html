@@ -63,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     <span class="label">Current batch</span>
                     <div class="btn-group hidden-phone"> 
                         <select id="select_tag" class="form-control">
-                            {% for x in range(1,3) %}
+                            {% for x in range(1, (dataset.batch_count)+1 ) %}
                                 <option value="/editor/{{dataset.id}}/{{x}}" onclick="location = this.value;" 
                                 {% if x|int() == batch_id|int() %}
                                     selected
