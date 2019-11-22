@@ -88,6 +88,14 @@ function select_label_event(label_index, label_str){
     return;   
 
   annotator.set_label(label_index-1);
+
+  var label_color = document.getElementById("label_color");
+  var rgb = getColorByInt(label_index-1)
+  //alert(label_color.style.color);
+  label_color.style.color = "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
+  
+
+
 }
 
 function upload_json_dodument(form){
