@@ -79,7 +79,7 @@ def users():
         temp_password = randomString()
         temp_password = "123456"
         if databaseManager.registerUser(email_p=createUserForm.email.data, type_p=int(createUserForm.role.data), 
-                                        name_p=createUserForm.username.data, password=temp_password, active_p=False) == 0:
+                                        name_p=createUserForm.username.data, password=temp_password, active_p=True) == 0:
             print("the user has been created")
             #send_email("Um teste", "ajgbusson@gmail.com", [createUserForm.email.data],"Um teste", "<h4> Um teste </h4>")
         else:
@@ -90,7 +90,8 @@ def users():
         
     
     users = databaseManager.getAllUser()
-    return render_template('user_table.html', title="USERS", users=users, createUserForm=createUserForm, editUserForm=editUserForm)
+    return render_template('user_table.html', current_user=current_user, title="USERS", users=users, createUserForm=createUserForm, editUserForm=editUserForm,
+                                                getTypeByValue=getTypeByValue)
     
 
 
@@ -107,15 +108,22 @@ def datasets():
             description_p = formCreateDataset.description.data, 
             annotation_type_p = int(formCreateDataset.annotation_type.data), owner_id_p = current_user.id, 
             license_p = int(formCreateDataset.license.data), zipfile_=formCreateDataset.zip_file.data, 
-            tags_p=formCreateDataset.tags.data, annotators_p=formCreateDataset.annotators.data)
+            tags_p=formCreateDataset.tags.data, annotators_p=formCreateDataset.annotators.data, batch_size_p=int(formCreateDataset.batch_size.data))
 
     #if formEditDataset.validate_on_submit():
 
     if formDeleteDataset.validate_on_submit():
         req_code, req_msg = databaseManager.deleteDataset(formDeleteDataset.id.data, formDeleteDataset.title.data) 
 
+    
+    datasets = []
 
-    datasets = databaseManager.getAllDatasets()
+    if current_user.role == int(USER_TYPE["SUPER_ADM"]):
+        datasets = databaseManager.getAllDatasets()
+    elif current_user.role == int(USER_TYPE["ADM"]): 
+        datasets = getAllDatasetsByOwnerId(current_user.id)
+
+
     datasets_annotators = []
     for dataset in datasets:
         dataset.annotators = [[], ""]
@@ -130,14 +138,14 @@ def datasets():
                     pre_str = " and "
                 dataset.annotators[1] += pre_str+databaseManager.getUserById(user.user_id).name
 
-    return render_template('datasets.html', title="DATASETS", 
+    return render_template('datasets.html', current_user=current_user, title="DATASETS", 
         formCreateDataset=formCreateDataset, formEditDataset=formEditDataset, 
         formDeleteDataset=formDeleteDataset, datasets=datasets, 
         getTypeByValue=getTypeByValue, getUserById=databaseManager.getUserById)
 
-@app.route('/editor/<dataset_id>')
+@app.route('/editor/<dataset_id>/<batch_id>')
 @login_required
-def editor(dataset_id):
+def editor(dataset_id, batch_id):
 
     dataset = databaseManager.getDataset(dataset_id)
     if dataset is None:
@@ -145,11 +153,11 @@ def editor(dataset_id):
 
     formJsonUpload = UploadJson()
 
-    mediaList = databaseManager.getAllMediaFromDataset(dataset.id)
+    mediaList = databaseManager.getAllMediaFromDatasetBatch(dataset.id, batch_id)
 
-    return render_template('editor.html', title="EDITOR", 
+    return render_template('editor.html', current_user=current_user, title="EDITOR", 
             dataset=dataset, mediaList=mediaList, tags=dataset.tags.split(","), 
-            formJsonUpload=formJsonUpload)
+            formJsonUpload=formJsonUpload, batch_id=batch_id)
 
 
 @app.route("/set_annotation/<dataset_id>/<media_id>", methods=['GET', 'POST'])

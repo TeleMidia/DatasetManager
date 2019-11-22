@@ -56,7 +56,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
       <div class="top-menu">
         <ul class="nav pull-right top-menu">
-          <li><a class="logout" href="login.html">Logout</a></li>
+          <li><a class="logout" href="/logout">Logout</a></li>
         </ul>
       </div>
     </header>
@@ -67,9 +67,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <div id="sidebar" class="nav-collapse ">
         <!-- sidebar menu start-->
         <ul class="sidebar-menu" id="nav-accordion">
-          <p class="centered"><a href="profile.html"><img src="{{url_for('static', filename='img/busson.jpg')}}" class="img-circle" width="80"></a></p>
-          <h5 class="centered">Antonio Busson</h5>
-          <li class="mt">
+          <p class="centered"><a href="/profile"><img src="{{url_for('static', filename='img/user.png')}}" class="img-circle" width="80"></a></p>
+          <h5 class="centered">{{ current_user.name }}</h5>
+       <!-- <li class="mt">
             {% if title == "DASHBOARD" %}
             <a class="active" href="/index">
             {% else %}  
@@ -78,7 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
               <i class="fa fa-dashboard"></i>
               <span>Dashboard</span>
               </a>
-          </li>
+          </li> -->  
           <li>
             {% if title == "DATASETS" %}
             <a class="active" href="/datasets">

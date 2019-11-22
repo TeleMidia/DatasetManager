@@ -98,6 +98,12 @@
     border-radius: 0px;
 }
 
+.tool_header .label{
+    font-size: 16px;
+    color:black;
+    vertical-align: middle;
+    font-weight: 100;
+}
 
 
 .inbox-pagination a.np-btn {

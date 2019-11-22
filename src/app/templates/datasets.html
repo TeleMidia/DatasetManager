@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <th style="display: none"></th>
             <th style="display: none"></th>
             <th style="display: none"></th>
+            <th style="display: none"></th>
           </tr>
         </thead>
         <tbody>
@@ -44,17 +45,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         <td class="center hidden-phone">1.0</td>
                         <td class="center hidden-phone">
                             <div class="pull-right hidden-phone">
-                                    <a href="/editor/{{ dataset.id }}"><button class="btn btn-success btn-xs"><i class="fa fa-edit"></i></button></a>
+                                    <a href="/editor/{{dataset.id}}/1"><button class="btn btn-success btn-xs"><i class="fa fa-edit"></i></button></a>
                                     <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#EditDatasetForm" onclick="clickEditDatasetButton('{{ dataset.id }}')"><i class="fa fa-pencil"></i></button>
                                     <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#DeleteDatasetForm" onclick="clickDeleteDatasetButton('{{ dataset.id }}')" ><i class="fa fa-trash-o "></i></button>
                                     <button class="btn btn-warning btn-xs"><i class="fa fa-share-square"></i></button>
                             </div>  
                         </td>
                         <td style="display: none">{{ dataset.description }}</td>
-
                         <td style="display: none">{{ getTypeByValue("LICENSE", dataset.license) }}</td>
                         <td style="display: none">{{ getTypeByValue("ANNOTATION", dataset.annotation_type) }}</td>
                         <td style="display: none">{{ dataset.annotators[1] }}</td>
+                        <td style="display: none">{{ dataset.batch_count }}</td>
                     </tr>
                 {% endfor %}           
         </tbody>
@@ -294,6 +295,7 @@ function fnFormatDetails(oTable, nTr) {
   sOut += '<tr><td><b>License:</b></td><td>' + aData[7] + '</td></tr>';
   sOut += '<tr><td><b>Annotation type:</b></td><td>' + aData[8] + '</td></tr>';
   sOut += '<tr><td><b>Annotators:</b></td><td>' + aData[9] + '</td></tr>';
+  sOut += '<tr><td><b>Batches:</b></td><td>' + aData[10] + '</td></tr>';
   sOut += '</table>';
 
   return sOut;

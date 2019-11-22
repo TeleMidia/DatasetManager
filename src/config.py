@@ -30,4 +30,6 @@ class Config(object):
     MAIL_USE_TLS = 1
     MAIL_USERNAME = "<e-mail>"
     MAIL_PASSWORD = "<password>"
+    
+    DATASETS_STORAGE = "datasets"
   

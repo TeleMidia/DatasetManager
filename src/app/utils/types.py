@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 USER_TYPE = {"SUPER_ADM": "0", "ADM": "1", "NORMAL": "2"}
 
-USER_STATUS = {"ACTIVE": "0", "BLOCKED": "1"}
+
 
 ERROR_TYPE = {"SUCCESS": 0}
 
@@ -41,3 +41,5 @@ def getTypeByValue(category_p, value_p):
         return getKeyByValue(ANNOTATION_TYPE, value_p)
     elif category_p == "LICENSE":
         return getKeyByValue(LICENSE_TYPE, value_p)
+    elif category_p == "ROLE":
+        return getKeyByValue(USER_TYPE, value_p)

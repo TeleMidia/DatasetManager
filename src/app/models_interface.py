@@ -21,6 +21,7 @@ from app.filemanager import FileManager
 from app.importer import Importer
 from app.utils.types import *
 import os
+import math
 
 from werkzeug.utils import secure_filename
 
@@ -56,7 +57,7 @@ class DataBaseManager():
             return 1, "Error: e-mail name already registered."   
     #end user interface
 
-    def createDataset(self, title_p, description_p, annotation_type_p, owner_id_p, license_p, zipfile_, tags_p, annotators_p):
+    def createDataset(self, title_p, description_p, annotation_type_p, owner_id_p, license_p, zipfile_, tags_p, annotators_p, batch_size_p):
         # check if exists a dataset with same name
         if Dataset.query.filter_by(title=title_p).first() is None:
             new_dataset = Dataset(title=title_p, description=description_p, annotation_type=annotation_type_p, owner_id=owner_id_p, license=license_p, tags=tags_p)
@@ -85,44 +86,23 @@ class DataBaseManager():
                 #get all images
                 imagesPathList = self.fileManager.getAllFilePaths(storage_path, ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]) 
 
-                for file_ in imagesPathList:
-                    new_media = Media(path=file_, database_id=new_dataset.id)
+                new_dataset.load = len(imagesPathList)
+                
+                new_dataset.batch_count = math.ceil(len(imagesPathList)/batch_size_p)
+                
+                batch_index=0
+
+                for index, file_ in enumerate(imagesPathList):
+                    if index%batch_size_p == 0:
+                        batch_index += 1    
+
+                    new_media = Media(path=file_, batch_index=batch_index, database_id=new_dataset.id)
                     db.session.add(new_media)
                 
-                new_dataset.load = len(imagesPathList)
+                
 
                 db.session.commit()
-                '''
-                #get all json
-                jsonPathList = self.fileManager.getAllFilePaths(storage_path, ["json"]) 
-
-                importer = Importer()
-                json_list = []
-                for file_ in jsonPathList:
-                    json_path = storage_path + file_
-                    json_parsed = importer.parse_json(json_path, file_)
-                    json_list.append(json_parsed)
-
-                tagList = tags_p.split(',')
-                
-                for json_dict in json_list:
-                    for file_name, bb_list in json_dict.items():
-                        if file_name in imagesPathList:
-                            count = 0
-                            json_document = "{ \"boundinboxes\": ["
-                            for index_bb, bb in enumerate(bb_list):
-                                if bb[0] in tagList:
-                                    count = count + 1
-                                    json_document = json_document + "{\"tag\": "+str(tagList.index(bb[0]))+", \"x1\": "+str(bb[1])+", \"y1\": "+str(bb[2])+", \"x2\": "+str(bb[3])+", \"y2\": "+str(bb[4])+"},"
-                                else:
-                                    print("conflict")        
-    
-                            json_document = json_document[:-1]
-                            json_document = json_document + "]}"
-
-                        # if count > 0:
-
-                '''
+               
                 
             return 0, "Sucess"
         else:
@@ -168,11 +148,22 @@ class DataBaseManager():
     def getAllDatasets(self):
         return Dataset.query.all()
 
+    def getAllDatasetsByOwnerId(self, owner_id_p):
+        return Dataset.query.filter_by(owner_id=owner_id_p)
+    
+    def getDatasetsIdByUser(self, user_id_p):
+        return User_Dataset.query.filter_by(user_id=user_id_p)
+
     def getDataset(self, dataset_id_p):
         return Dataset.query.get(dataset_id_p) 
     
     def getAllMediaFromDataset(self, dataset_id_p):
         return Media.query.filter_by(database_id=dataset_id_p)
+
+    def getAllMediaFromDatasetBatch(self, dataset_id_p, batch_id_p):
+        return Media.query.filter_by(database_id=dataset_id_p, batch_index=batch_id_p )
+
+
 
     def getMediaOfDatasetById(self, dataset_id_p, media_id_p):
         return Media.query.filter_by(database_id=dataset_id_p, id=media_id_p)

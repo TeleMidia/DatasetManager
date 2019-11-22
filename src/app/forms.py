@@ -41,7 +41,7 @@ class CreateUserForm(FlaskForm):
 class EditUserForm(FlaskForm):
     id = StringField('Dataset id', validators=[DataRequired()])
     role = SelectField('Role', choices=[(USER_TYPE["NORMAL"], "ANNOTATOR"), (USER_TYPE["ADM"], "ADMIN")])
-    active = SelectField('STATUS', choices=[(USER_STATUS["ACTIVE"], "ACTIVE"), (USER_STATUS["BLOCKED"], "BLOCKED")])
+    active = SelectField('STATUS', choices=[("0", "ACTIVE"), ("1", "BLOCKED")])
     edit = SubmitField('Edit')
 
 class CreateDatasetForm(FlaskForm):
