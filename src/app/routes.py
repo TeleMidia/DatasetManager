@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from flask import render_template, flash, redirect, send_from_directory, url_for
 from app import app
-from app.forms import LoginForm, ForgotPasswordForm, CreateDatasetForm, EditDatasetForm, DeleteDatasetForm, UploadJson, CreateUserForm, EditUserForm
+from app.forms import LoginForm, ForgotPasswordForm, CreateDatasetForm, EditDatasetForm, DeleteDatasetForm, UploadJson, CreateUserForm, EditUserForm, EditUserProfile
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models_interface import DataBaseManager
 from app.utils.gen import *
@@ -121,7 +121,10 @@ def datasets():
     if current_user.role == int(USER_TYPE["SUPER_ADM"]):
         datasets = databaseManager.getAllDatasets()
     elif current_user.role == int(USER_TYPE["ADM"]): 
-        datasets = getAllDatasetsByOwnerId(current_user.id)
+        datasets = databaseManager.getAllDatasetsByOwnerId(current_user.id)
+        datasets = datasets + databaseManager.getDatasetsByUser(current_user.id)
+    else:
+        datasets = databaseManager.getDatasetsByUser(current_user.id)
 
 
     datasets_annotators = []
@@ -159,6 +162,27 @@ def editor(dataset_id, batch_id):
             dataset=dataset, mediaList=mediaList, tags=dataset.tags.split(","), 
             formJsonUpload=formJsonUpload, batch_id=batch_id)
 
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+
+    editUserProfile = EditUserProfile()
+    error_code = 0
+    if editUserProfile.validate_on_submit():
+        if not current_user.check_password(editUserProfile.old_password.data):
+            error_code = 2
+        else:
+            databaseManager.updateUserProfile(user_id_p=current_user.id, name_p=editUserProfile.name.data, password_p=editUserProfile.password.data)
+            logout_user()
+            return redirect(url_for('login'))
+
+    return render_template('profile.html', title="PROFILE", error_code=error_code, editUserProfile=editUserProfile)
+
+@app.route('/logs')
+@login_required
+def logs():
+    return render_template('logs.html', title="LOGS")
 
 @app.route("/set_annotation/<dataset_id>/<media_id>", methods=['GET', 'POST'])
 def setAnnotation(dataset_id, media_id):

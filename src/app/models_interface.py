@@ -44,6 +44,12 @@ class DataBaseManager():
     def getUserByDatasetId(self, dataset_id_p):
         return User_Dataset.query.filter_by(dataset_id=dataset_id_p)
 
+    def updateUserProfile(self, user_id_p, name_p, password_p):
+        user = User.query.get(user_id_p)
+        user.name = name_p
+        user.set_password(password_p)
+        db.session.commit()
+
     def registerUser(self, email_p, type_p, name_p, password, active_p):
 
         # check if e-mail already registered
@@ -151,8 +157,12 @@ class DataBaseManager():
     def getAllDatasetsByOwnerId(self, owner_id_p):
         return Dataset.query.filter_by(owner_id=owner_id_p)
     
-    def getDatasetsIdByUser(self, user_id_p):
-        return User_Dataset.query.filter_by(user_id=user_id_p)
+    def getDatasetsByUser(self, user_id_p):
+        user_datasets = User_Dataset.query.filter_by(user_id=user_id_p)
+        datasetList = []
+        for user_dataset in user_datasets:
+            datasetList.append(self.getDataset(user_dataset.dataset_id))
+        return datasetList
 
     def getDataset(self, dataset_id_p):
         return Dataset.query.get(dataset_id_p) 

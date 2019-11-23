@@ -1,0 +1,90 @@
+<!--
+Copyright (C) 2019  Telemidia/PUC-Rio <http://www.telemidia.puc-rio.br/>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "base_interface.html" %}
+
+{% block main_content %}
+
+
+      
+      
+
+
+<!-- Edit profile modal -->
+<div class="" id="EditProfileForm">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="" method="post" enctype="multipart/form-data" novalidate>
+                {{ editUserProfile.hidden_tag() }}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="modalLabel">Edit Profile</h4> 
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{{editUserProfile.name.label}}</label>
+                        {{ editUserProfile.name(size=60, class_="form-control") }}
+                        {% for error in editUserProfile.name.errors %}
+                            <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label>{{editUserProfile.old_password.label}}</label>
+                        {{ editUserProfile.old_password(size=20, class_="form-control") }}
+                        {% if error_code == 2 %}
+                            <small id="emailHelp" class="form-text text-muted" style="color: red;">Wrong password</small>
+                        {% endif %}
+                        {% for error in editUserProfile.old_password.errors %}
+                            <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                            <label>{{editUserProfile.password.label}}</label>
+                            {{ editUserProfile.password(size=20, class_="form-control") }}
+                            {% for error in editUserProfile.password.errors %}
+                                <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                            {% endfor %}
+                    </div>  
+                    <div class="form-group">
+                            <label>{{editUserProfile.confirm.label}}</label>
+                            {{ editUserProfile.confirm(size=20, class_="form-control") }}
+                            {% for error in editUserProfile.confirm.errors %}
+                                <small id="emailHelp" class="form-text text-muted" style="color: red;">[{{ error }}]</small>
+                            {% endfor %}
+                    </div>                  
+                </div>
+                <div class="modal-footer">
+                    {{ editUserProfile.update(class_="btn btn-primary") }}  
+                </div>
+                </form>   
+            </div>
+           
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block extra_script %}
+
+window.onload = function() {
+   
+};
+
+{% endblock %}

@@ -16,8 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, SelectField, BooleanField, IntegerField, SubmitField
-from wtforms.validators import DataRequired,  Email
+from wtforms import StringField, PasswordField, TextAreaField, SelectField, BooleanField, IntegerField, SubmitField, PasswordField
+from wtforms.validators import DataRequired,  Email,  EqualTo
 from wtforms.fields.html5 import EmailField
 from flask_wtf.file import FileField, FileRequired
 
@@ -43,6 +43,13 @@ class EditUserForm(FlaskForm):
     role = SelectField('Role', choices=[(USER_TYPE["NORMAL"], "ANNOTATOR"), (USER_TYPE["ADM"], "ADMIN")])
     active = SelectField('STATUS', choices=[("0", "ACTIVE"), ("1", "BLOCKED")])
     edit = SubmitField('Edit')
+
+class EditUserProfile(FlaskForm):
+    name =  StringField('User Name', validators=[DataRequired()])
+    old_password = PasswordField('Older Password', validators=[DataRequired()])
+    password = PasswordField('New Password', validators=[ DataRequired(), EqualTo('confirm', message='Passwords must match')])
+    confirm = PasswordField('Repeat Password', validators=[DataRequired()])
+    update = SubmitField('Update')
 
 class CreateDatasetForm(FlaskForm):
     title = StringField('Dataset title', validators=[DataRequired()], render_kw={"placeholder": "title"})

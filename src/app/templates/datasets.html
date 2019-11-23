@@ -46,9 +46,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         <td class="center hidden-phone">
                             <div class="pull-right hidden-phone">
                                     <a href="/editor/{{dataset.id}}/1"><button class="btn btn-success btn-xs"><i class="fa fa-edit"></i></button></a>
-                                    <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#EditDatasetForm" onclick="clickEditDatasetButton('{{ dataset.id }}')"><i class="fa fa-pencil"></i></button>
-                                    <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#DeleteDatasetForm" onclick="clickDeleteDatasetButton('{{ dataset.id }}')" ><i class="fa fa-trash-o "></i></button>
-                                    <button class="btn btn-warning btn-xs"><i class="fa fa-share-square"></i></button>
+                                    {% if current_user.id|int() == dataset.owner_id|int() %}  
+                                        <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#EditDatasetForm" onclick="clickEditDatasetButton('{{ dataset.id }}')"><i class="fa fa-pencil"></i></button>
+                                        <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#DeleteDatasetForm" onclick="clickDeleteDatasetButton('{{ dataset.id }}')" ><i class="fa fa-trash-o "></i></button>
+                                        <button class="btn btn-warning btn-xs"><i class="fa fa-share-square"></i></button>
+                                    {% endif %}
                             </div>  
                         </td>
                         <td style="display: none">{{ dataset.description }}</td>
@@ -72,7 +74,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="modalLabel">New Dataset</h4>
+                <h4 class="modal-title" id="modalLabel">New Dataset</h4> 
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -216,7 +218,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 {% endblock %}
 
 {% block content_menu %}
-<a class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#CrtDatasetForm">Add New Dataset</a>
+
+    {% if current_user.role|int() < 2 %}  
+        <a class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#CrtDatasetForm">Add New Dataset</a>
+    {% endif %}
 
 {% endblock %}
 
