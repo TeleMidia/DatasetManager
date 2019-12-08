@@ -16,3 +16,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from app import app
+
+if __name__ == "__main__":
+    app.run()

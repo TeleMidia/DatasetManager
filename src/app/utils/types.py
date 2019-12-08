@@ -36,7 +36,7 @@ def getKeyByValue(dict, value_p):
 
 def getTypeByValue(category_p, value_p):
     global USER_TYPE, USER_STATUS, ERROR_TYPE, ANNOTATION_TYPE, LICENSE_TYPE
-    print('CALL!')
+
     if category_p == "ANNOTATION":
         return getKeyByValue(ANNOTATION_TYPE, value_p)
     elif category_p == "LICENSE":
