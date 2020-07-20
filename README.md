@@ -1,6 +1,5 @@
-# DatasetManager
-A dataset annotation and management tool
-
+# ImageAnnotator
+An ImageAnnotator tool
 
 ## Building the repository
 With Python >= 3.6 and pip, install the dependencies:
@@ -14,15 +13,15 @@ With Python >= 3.6 and pip, install the dependencies:
     $ pip3 install flask-mail
     $ pip3 install pyjwt
     
-From "/DatasetManager/src", run:   
+From "/src", run:   
 
     $ flask db init
     $ flask db migrate -m "users table"
     $ flask db upgrade
     $ export FLASK_APP=datasetmanager.py 
 
-## Starting DatasetManager
-From "/DatasetManager/src", run:
+## Starting ImageAnnotator
+From "/src", run:
 
     $ flask run
 
